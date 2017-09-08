@@ -5,7 +5,6 @@ ENV["TERM"] = "xterm-256color"
 ENV["LC_ALL"] = "en_US.UTF-8"
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "jhcook/fedora26" # defaults to fedora
 
   # common parts
   if Vagrant.has_plugin?("vagrant-vbguest")
@@ -20,7 +19,14 @@ Vagrant.configure("2") do |config|
 
   # Fedora 26
   config.vm.define "fedora", primary: true do |fedora|
+    config.vm.box = "jhcook/fedora26" # defaults to fedora
+
     config.vm.provision "shell", inline: "dnf install -y btrfs-progs docker git go kubernetes qemu-img strace tmux"
+
+    config.vm.provider :libvirt do |_, override|
+      override.vm.box = "fedora/26-cloud-base" # defaults to fedora
+      override.vm.box_url = "https://download.fedoraproject.org/pub/fedora/linux/releases/26/CloudImages/x86_64/images/Fedora-Cloud-Base-Vagrant-26-1.5.x86_64.vagrant-libvirt.box"
+    end
 
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder ".", "/home/vagrant/go/src/github.com/kinvolk/kube-spawn",
@@ -42,6 +48,11 @@ Vagrant.configure("2") do |config|
   config.vm.define "ubuntu", autostart: false do |ubuntu|
     config.vm.box = "ubuntu/zesty64"
     config.vm.provision "shell", inline: "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -; echo \"deb http://apt.kubernetes.io/ kubernetes-xenial main\" > /etc/apt/sources.list.d/kubernetes.list; apt-get update; DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io golang git qemu-utils selinux-utils systemd-container kubectl tmux"
+
+    config.vm.provider :libvirt do |_, override|
+      override.vm.box = "wholebits/ubuntu17.04-64"
+      override.vm.box_version = "2017.08.30"
+    end
 
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder ".", "/home/ubuntu/go/src/github.com/kinvolk/kube-spawn",
