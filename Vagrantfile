@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
 
   # Fedora 26
   config.vm.define "fedora", primary: true do |fedora|
-    config.vm.provision "shell", inline: "dnf install -y btrfs-progs git go qemu-img strace tmux"
+    config.vm.provision "shell", inline: "dnf install -y btrfs-progs git go iptables qemu-img strace systemd-container tmux"
 
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder ".", "/home/vagrant/go/src/github.com/kinvolk/kube-spawn",
@@ -45,7 +45,7 @@ Vagrant.configure("2") do |config|
   # Ubuntu 17.04 (Zesty)
   config.vm.define "ubuntu", autostart: false do |ubuntu|
     config.vm.box = "generic/ubuntu1704"
-    config.vm.provision "shell", inline: "apt-get update; DEBIAN_FRONTEND=noninteractive apt-get install -y golang git qemu-utils selinux-utils systemd-container kubectl tmux"
+    config.vm.provision "shell", inline: "apt-get update; DEBIAN_FRONTEND=noninteractive apt-get install -y golang git iptables qemu-utils selinux-utils systemd-container kubectl tmux"
 
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder ".", "/home/vagrant/go/src/github.com/kinvolk/kube-spawn",
@@ -63,7 +63,7 @@ Vagrant.configure("2") do |config|
   # Debian testing
   config.vm.define "debian", autostart: false do |debian|
     config.vm.box = "debian/testing64"
-    config.vm.provision "shell", inline: "echo deb http://httpredir.debian.org/debian unstable main >> /etc/apt/sources.list; apt-get update; DEBIAN_FRONTEND=noninteractive apt-get install -y golang git qemu-utils selinux-utils systemd-container tmux"
+    config.vm.provision "shell", inline: "echo deb http://httpredir.debian.org/debian unstable main >> /etc/apt/sources.list; apt-get update; DEBIAN_FRONTEND=noninteractive apt-get install -y golang git iptables qemu-utils selinux-utils systemd-container tmux"
 
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder ".", "/home/vagrant/go/src/github.com/kinvolk/kube-spawn",
