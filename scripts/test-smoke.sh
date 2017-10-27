@@ -10,9 +10,22 @@ pushd "$CDIR"
 trap 'popd' EXIT
 
 if ! vagrant version > /dev/null 2>&1; then
-  echo "Please install vagrant first"
-  exit 1
+	# vagrant 2.0 is necessary, because the default vagrant 1.4 on Ubuntu 14.04
+	# doesn't support some syntax in Vagrantfile (e.g. 'env').
+	curl -s -o /tmp/vagrant.deb https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.deb
+	sudo dpkg -i /tmp/vagrant.deb
+	rm -f /tmp/vagrant.deb
 fi
+
+if [[ ! -f "/sys/module/vboxdrv" ]]; then
+	sudo apt-get install -y virtualbox
+	sudo modprobe vboxdrv
+fi
+
+IMAGENAME="fedora/26-cloud-base"
+if ! vagrant box list | grep ${IMAGENAME} > /dev/null 2>&1; then
+	vagrant box add ${IMAGENAME} --provider=virtualbox
+ fi
 
 MSTATUS="$(vagrant status fedora |grep fedora|awk -F' ' '{print $2}')"
 if [[ "${MSTATUS}" == "running" ]]; then
@@ -25,7 +38,7 @@ vagrant ssh fedora -c " \
 	sudo setenforce 0; \
 	go get -u github.com/containernetworking/plugins/plugins/... && \
 	cd ~/go/src/github.com/kinvolk/kube-spawn && \
-	make dep vendor all && \
+	DOCKERIZED=n make all && \
 	sudo -E go test -v --tags integration ./tests \
 	"
 RESCODE=$?
